@@ -6,7 +6,6 @@
  ////////////////////////////
  ////////////////////////////
 
-
 GridCell::GridCell(int i, int j)
 {
 	m_gridproperty = FREE;
@@ -94,27 +93,41 @@ bool Grid::isTargetUnchecked(Patch* patch, std::vector<std::tuple<PatchSide, Pat
 {
 	bool flag = false;
 	bool cellChecked = false;
+	//bool targetChecked = false;
+	int targetsChecked = 0;
 	//If this side of the target hasn´t been checked for that patch
 	if( patch->targetsChecked.size() == 0)
 		return true;
 	
-	for (std::size_t i = 0; i < patch->cellsWherePatchHasBeen.size(); i++)  //if this patch has never been in this cell
+	for (std::size_t i = 0; i < patch->cellsWherePatchHasBeen.size(); i++)  //if this patch has been in this cell
 	{
 		if (patch->cellsWherePatchHasBeen[i] == m_grid[i_grid][j_grid])
 			cellChecked = true;
 	}
-	if (cellChecked == false) return true;
 	
-	for (std::size_t i = 0; i < m_neighbours.size(); i++)
+	if (cellChecked == false) //if this cell hasnt been checked, return true for "targetUnchecked"
+		return true;
+	else //if this cell has been checked, check if has also being checked for potential new targets
 	{
-		Patch* target = std::get<2>(m_neighbours[i]);
-		for (std::size_t j = 0; j < patch->targetsChecked.size(); j++)
+		for (std::size_t i = 0; i < m_neighbours.size(); i++)
 		{
-			if (patch->targetsChecked[j].first == target && patch->targetsChecked[j].second == target->patch_side) //target and targetSide already checked before
-				return false;
+			Patch* target = std::get<2>(m_neighbours[i]);
+			for (std::size_t j = 0; j < patch->targetsChecked.size(); j++)
+			{
+				if (patch->targetsChecked[j].first == target && patch->targetsChecked[j].second == target->patch_side) //target and targetSide already checked before
+				{
+					//targetChecked = true;
+					targetsChecked++;
+					j = patch->targetsChecked.size();
+				}
+			}
 		}
 	}
-	return true;
+	if (targetsChecked < m_neighbours.size()) //if there are some targets unchecked
+		return true;
+	else 
+		return false;
+	//return !targetChecked;
 }
  
 void Grid::retrieveXY()			//Retrieve the centerx and centery coordinates from the i and j identifier of the grid
@@ -134,7 +147,7 @@ void Grid::rotate4Times(Patch* target, Patch* patch, int i_grid, int j_grid, Ogr
 	double error = 0.0;
 	int sideOfPatch;
 	PatchSide _patchSide, _targetSide;
-	for (int rotationNumber = 0; rotationNumber <4; rotationNumber++)								//Rotate 3 times
+	for (int rotationNumber = 0; rotationNumber <1; rotationNumber++)								//Rotate 3 times
 	{
 		for (std::size_t neighbor = 0; neighbor < m_neighbours.size(); neighbor++)					//For every neighbour
 		{
@@ -146,7 +159,8 @@ void Grid::rotate4Times(Patch* target, Patch* patch, int i_grid, int j_grid, Ogr
 			{																					//If there is no rotation yet, calculate error in first position
 				sideOfPatch = patch->patch_side;
 				patch->computeError(target, _patchSide, _targetSide, mDetailsPanel, patch, m_grid[i_grid][j_grid], patchId, mSceneMgr,mRoot );	  //patchSide and targetSide for each neighbor
-			}else
+			}
+			else
 			{																									
 				if(neighbor == 0)																    //Rotate the patch only once for all the neighbours, if this value is bigger than 0, it was already rotated for the previous neighbour and the patch is on the right position now
 				{	
@@ -154,48 +168,51 @@ void Grid::rotate4Times(Patch* target, Patch* patch, int i_grid, int j_grid, Ogr
 					mRoot->renderOneFrame();
 				}
 				patch->computeError(target,  _patchSide, _targetSide, mDetailsPanel,  patch, m_grid[i_grid][j_grid], patchId, mSceneMgr, mRoot);			
-				
-				if (m_neighbours.size() > 1)										//if there is more than 1 neigbour, make the average of the errors
-				{
-					for (std::size_t i = 0; i < m_neighbours.size(); i++)
-					{
-						error += patch->m_curError.back().error;
-						patch->m_curError.pop_back();
-					}
-					error = error/m_neighbours.size();
-					bestErrorOfPatch current_error;
-					current_error.error = error;
-					current_error.vertices = patch->m_vertices;
-					current_error.cell = m_grid[i_grid][j_grid];
-					current_error.patchId = patchId;
-					current_error.orientation = patch->m_orientation;
-					current_error.zPos = patch->currentZposition;
-					patch->m_curError.push_back(current_error);
-				}
+
 			}
 		}
+
+		//Compute average of the error for more than 1 target
+		if (m_neighbours.size() > 1)	
+		{
+			bestErrorOfPatch current_error;
+			double currError = 0;
+			for (std::size_t i = 0; i < patch->temporalError.size(); i++)
+			{
+				currError +=  patch->temporalError[i].error;
+			}
+			currError = currError/m_neighbours.size();
+			current_error.error = currError;
+			current_error.vertices = patch->m_vertices;
+			current_error.cell = m_grid[i_grid][j_grid];
+			current_error.patchId = patchId;
+			current_error.orientation = patch->m_orientation;
+			current_error.zPos = patch->currentZposition;
+			patch->m_curError.push_back(current_error);
+			patch->temporalError.clear();
+		}
+		
 	}		
 	for (std::size_t numberOfNeighbour = 0; numberOfNeighbour < m_neighbours.size(); numberOfNeighbour++)
 	{
 		target = std::get<2>(m_neighbours[numberOfNeighbour]);	
 		patch->targetsChecked.push_back(std::make_pair(target, target->patch_side));
 	}
-	patch->cellsWherePatchHasBeen.push_back(m_grid[i_grid][j_grid]);
-	
-	patch->rotatePatch(mSceneMgr, centerX, centerY, mRoot);												//Return to original position
+	patch->cellsWherePatchHasBeen.push_back(m_grid[i_grid][j_grid]);									//save this cell as visited cell by the patch
+
+	//patch->rotatePatch(mSceneMgr, centerX, centerY, mRoot);												//Return to original position
 }
 
 void Grid::transverseGrid(Patch* patch, Patch* target, Ogre::SceneManager* mSceneMgr, Ogre::Root* mRoot, OgreBites::ParamsPanel* mDetailsPanel, int patchId, int numberOfCells)
 {
 	int centerXofCell; //Center of the cell in X
 	int centerYofCell; //Center of the cell in y
-	double z_position = 0;
+	double z_position = patch->OriginalZPos;
 	int patchCounter = patchId;
 	
 	bool positionCorrect = false;						//Patch has not yet been translated to correct posittion
 	std::vector<PatchSide> sideToMove;
 	std::pair<double, double> newCoordinates;
-
 
 	updateGrid(target);																//Set the target into the cell and mark it as occupied																
 	for (int i_grid = 0; i_grid < g_width; i_grid++){																//Go through all the grid
@@ -208,12 +225,12 @@ void Grid::transverseGrid(Patch* patch, Patch* target, Ogre::SceneManager* mScen
 					updatePossibleCell(i_grid, j_grid, patch);
 					centerXofCell = m_grid[i_grid][j_grid]->c_centerX;										//Get the coordinates of the selected cell
 					centerYofCell = m_grid[i_grid][j_grid]->c_centerY;
-					for (std::size_t translation_Number = 0; translation_Number < 3; translation_Number++)				//Translate in "Z" another 2 times in that position
-					{
-						z_position = getPositionInZ(translation_Number);
-						patch->translatePatch(centerXofCell, centerYofCell, z_position, mSceneMgr, mRoot);									//Translates the patch to the correct cell			
+				//	for (std::size_t translation_Number = 0; translation_Number < 3; translation_Number++)				//Translate in "Z" another 2 times in that position
+				//	{
+				//		z_position = getPositionInZ(translation_Number, mSceneMgr, patch);
+						patch->translatePatch(centerXofCell, 0, z_position, mSceneMgr, mRoot);									//Translates the patch to the correct cell			
 						rotate4Times(target, patch, i_grid, j_grid, mDetailsPanel, mSceneMgr, patchId, mRoot, centerXofCell, centerYofCell);		//Rotate the patch 4 times and calculate the error
-					}					
+				//	}					
 				}
 			}														
 		}
@@ -340,14 +357,14 @@ std::vector<std::tuple<PatchSide, PatchSide, Patch*>> Grid::getNeighbours(int i,
 	
 }
 
-double Grid::getPositionInZ(std::size_t  translationNumber)
+double Grid::getPositionInZ(std::size_t  translationNumber, Ogre::SceneManager* mSceneMgr, Patch *patch)
 {
-	double z_position;
+	Ogre::Real z_position;
 	if (translationNumber == 1)																	//modify the "z" position 
-		z_position = -1;
+		z_position = -0.3;
 	else if (translationNumber == 2)
-		z_position = 1;
-	else z_position = 0;
+		z_position = 0.3;
+	else z_position = patch->OriginalZPos;
 
 	return z_position;
 }

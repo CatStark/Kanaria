@@ -70,7 +70,7 @@ public:
 	void updateGrid(Patch* p);
 	std::vector<std::tuple<PatchSide, PatchSide, Patch*>> getNeighbours(int, int);
 	void Grid::rotate4Times(Patch* target, Patch* patch, int i_grid, int j_grid, OgreBites::ParamsPanel* mDetailsPanel, Ogre::SceneManager* mSceneMgr, int patchId, Ogre::Root* mRoot, int, int);
-	double Grid::getPositionInZ(std::size_t translationNumber);
+	double Grid::getPositionInZ(std::size_t translationNumber, Ogre::SceneManager* mSceneMgr, Patch *patch);
 	bestErrorOfPatch bestFitOfPatch(Patch* p);
 	bool isTargetUnchecked(Patch* patch, std::vector<std::tuple<PatchSide, PatchSide, Patch*>> m_neighbours, int, int);
 

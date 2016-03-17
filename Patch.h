@@ -4,14 +4,15 @@
 
 #define widhtGrid 3
 #define heightGrid 3
-#define heightCell 20
-#define widthCell 20
-#define sizeCell 20
+#define heightCell 10
+#define widthCell 10
+#define sizeCell 10
 
 #include <vector>
 #include <OGRE\Ogre.h>
 #include <OgreLogManager.h>
 #include <SdkTrays.h>
+#include <algorithm>
 
 typedef enum PatchSide 
 {
@@ -65,9 +66,9 @@ public:
 	void computeError(Patch* target, PatchSide _patch, PatchSide _target, OgreBites::ParamsPanel* mDetailsPanel, Patch* patch, GridCell* cell, int, Ogre::SceneManager* mSceneMgr, Ogre::Root* mRoot );									//s from p
 	void becomesTarget();																		//Change when the patch becomes a target
 	void rotatePatch(Ogre::SceneManager* mSceneMgr, int, int, Ogre::Root* mRoot);
-	void translatePatch(int, int, int, Ogre::SceneManager* mSceneMgr, Ogre::Root* mRoot);
+	void translatePatch(int, int, Ogre::Real currentZposition, Ogre::SceneManager* mSceneMgr, Ogre::Root* mRoot);
 	void translatePatchToOrigin(Ogre::SceneManager* mSceneMgr, int);
-	void translatePatchDeffinitve(Ogre::SceneManager* mSceneMgr, bestErrorOfPatch, int, int, Ogre::Real);
+	void translatePatchDeffinitve(Ogre::SceneManager* mSceneMgr, bestErrorOfPatch, int, int, Ogre::Real zPos);
 	PatchSide getSideFromInt(int);
 	std::pair<std::vector<Ogre::Vector3>,std::vector<Ogre::Vector3>> Patch::choseSide(Patch* target, PatchSide pSide, PatchSide tSide);						//picks patch and template side 
 	void removeFromErrorList(GridCell* cell);
@@ -95,10 +96,11 @@ public:
 	Ogre::Real p_width, p_height;
 	std::vector<bestErrorOfPatch> _bestFitOfPatch;
 	std::vector<bestErrorOfPatch> m_curError;
+	std::vector<bestErrorOfPatch> temporalError; //Temporal storage of error in case there is more than 1 target, so the average of the error for all targets can be made
 	bestErrorOfPatch bestFit;
 	std::vector<GridCell*> cellsWherePatchHasBeen;
 	Ogre::Real deviationInX, deviationInY;
-	
+	Ogre::Quaternion originalOrientation;
 
 
 	Ogre::Real currentZposition;
@@ -114,6 +116,8 @@ public:
   Ogre::SceneNode* node;
   Ogre::SceneNode* _baseSceneNode;
   Ogre::String _baseSceneNodeName;
+
+  Ogre::Real OriginalZPos;
 };
 
 

@@ -186,12 +186,12 @@ void NewStitching::chooseSceneManager()
 void NewStitching::createCamera()
 {
   mCameraFront = mSceneMgr->createCamera("FrontCam");
-  mCameraFront->setPosition(Ogre::Vector3(-20, 30, 200));
+  mCameraFront->setPosition(Ogre::Vector3(0, 30, 200));
   mCameraFront->lookAt(Ogre::Vector3(30, 30, 0));
   mCameraFront->setNearClipDistance(5);
 
   mCameraSideView = mSceneMgr->createCamera("SideView");
-  mCameraSideView->setPosition(Ogre::Vector3(-60, 30, 50 ));
+  mCameraSideView->setPosition(Ogre::Vector3(-50, 30, 50 ));
   mCameraSideView->lookAt(Ogre::Vector3(30,30,0));
   mCameraSideView->setNearClipDistance(5);
 
@@ -249,11 +249,35 @@ void NewStitching::createTemplate()
 {
 	Ogre::Quaternion rotation(Ogre::Degree(-180), Ogre::Vector3::UNIT_Y); 
 	Ogre::Quaternion rotation2(Ogre::Degree(180), Ogre::Vector3::UNIT_Z); 
+	Ogre::Quaternion rotation3(Ogre::Degree(90), Ogre::Vector3::UNIT_Z);
 	Ogre::Vector3 scale(0.5, 0.5, 0.5);
+
+	//test
+	/*Ogre::Vector3 bbsize = Ogre::Vector3::ZERO; //Boundingbox size
+	Ogre::Entity *targetPatch = mSceneMgr->createEntity("target", "mm.mesh");
+	Ogre::AxisAlignedBox bb = targetPatch->getBoundingBox();
+	bbsize = bb.getSize();
+	Ogre::Real p_centerX = bbsize.x / 2;
+	Ogre::Real p_centerY = bbsize.y / 2;
+	Ogre::Real zPoss = bbsize.z;
+	Ogre::Real p_width = bbsize.x;
+	Ogre::Real p_height = bbsize.y;
+
+	Ogre::Real deviationInX = std::abs((widthCell / 2) - p_centerX); //The patch has not uniform mass, therefore the center of the patch might be not exactly in the center, this value shows how much the error is
+	Ogre::Real deviationInY = std::abs((heightCell / 2) - p_centerY);
+
+	Ogre::SceneNode* _baseSceneNodeNameTemplate;				//Create a node with an offset to compensate for the deviation of the "center point" of the patch imported by Blender
+	_baseSceneNodeNameTemplate = mSceneMgr->getSceneNode("grid")->createChildSceneNode("base");
+	//_baseSceneNodeNameTemplate->translate(10,10, 0, Ogre::Node::TS_PARENT);
+	_baseSceneNodeNameTemplate->setPosition(0,0,0);
+
+	Ogre::SceneNode* targetNode = mSceneMgr->getSceneNode("base")->createChildSceneNode("nodemm");*/
+
+
+	//test--
 
 	Ogre::Entity *targetPatch = mSceneMgr->createEntity("target", "mm.mesh");
 	Ogre::SceneNode* targetNode = mSceneMgr->getSceneNode("grid")->createChildSceneNode("nodemm");
-//	targetNode->scale(scale);
 	targetNode->translate((widthCell*widhtGrid)/2,(heightCell*heightGrid)/2,0);
 	targetNode->rotate(rotation, Ogre::Node::TransformSpace::TS_LOCAL); //Because Blender export them with a different orientation
 	targetNode->rotate(rotation2, Ogre::Node::TransformSpace::TS_LOCAL);
@@ -270,7 +294,7 @@ void NewStitching::createPatches()
 
 	Ogre::SceneNode* patches = mSceneMgr->getRootSceneNode()->createChildSceneNode("patches");
 
-	for (int numberOfPatch = 0; numberOfPatch < numberOfPossibleCells; numberOfPatch++) // Create 7 patches
+	for (int numberOfPatch = 0; numberOfPatch < numberOfPossibleCells; numberOfPatch++) // 
 	{
 		Patch* patch = new Patch(false, numberOfPatch, mSceneMgr);
 		_patches.push_back(patch);
@@ -378,6 +402,7 @@ void NewStitching::createFrameListener(void)
   // create a panel to dsiplay the error and angle
   Ogre::StringVector items;
   items.push_back("Error:       ");
+  items.push_back("Orient:       ");
   mDetailsPanel = mTrayMgr->createParamsPanel(OgreBites::TL_NONE, "DetailsPanel", 200, items);
   mRoot->addFrameListener(this);
    	
