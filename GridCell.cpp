@@ -228,7 +228,7 @@ void Grid::transverseGrid(Patch* patch, Patch* target, Ogre::SceneManager* mScen
 				//	for (std::size_t translation_Number = 0; translation_Number < 3; translation_Number++)				//Translate in "Z" another 2 times in that position
 				//	{
 				//		z_position = getPositionInZ(translation_Number, mSceneMgr, patch);
-						patch->translatePatch(centerXofCell, 0, z_position, mSceneMgr, mRoot);									//Translates the patch to the correct cell			
+						patch->translatePatch(centerXofCell, centerYofCell, 0, mSceneMgr, mRoot);									//Translates the patch to the correct cell			
 						rotate4Times(target, patch, i_grid, j_grid, mDetailsPanel, mSceneMgr, patchId, mRoot, centerXofCell, centerYofCell);		//Rotate the patch 4 times and calculate the error
 				//	}					
 				}
