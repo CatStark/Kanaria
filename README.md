@@ -119,5 +119,5 @@ The chosen patch will be translated to its corresponding cell and the process wi
 #Output
 Right now is not working perfectly for all patches. In a grid of 3x3 it can produces the original mesh back, but in a bigger grid, (5x5 for example) is not perfect. Although is stitching back correctly in some places, in other places is placing the patches in a wrong cell.
 
-
-
+![alt text](Kanaria/Capture3x3.PNG "Grid 3x3")
+![alt text](Kanaria/Capture5x5.PNG "Grid 5x5")
