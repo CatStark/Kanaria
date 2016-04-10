@@ -116,5 +116,8 @@ After the loop is finished, the thread will go back to `StartAnimation` where a 
 When all patches are checked, the `bestFitInGrid` method will be called, and will retrieve the patch with the smallest error.
 The chosen patch will be translated to its corresponding cell and the process will be repeated until all cells are filled.
 
+#Output
+Right now is not working perfectly for all patches. In a grid of 3x3 it can produces the original mesh back, but in a bigger grid, (5x5 for example) is not perfect. Although is stitching back correctly in some places, in other places is placing the patches in a wrong cell.
+
 
 
