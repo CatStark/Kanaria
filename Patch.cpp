@@ -571,8 +571,8 @@ std::pair<std::vector<Ogre::Vector3>, std::vector<int>> Patch::getMeshInformatio
 		}
 		Ogre::IndexData* index_data = submesh->indexData;
 		size_t numTris = index_data->indexCount / 3;
-		unsigned short* pShort;
-		unsigned int* pInt;
+		unsigned short* pShort = 0;
+		unsigned int* pInt = 0;
 		Ogre::HardwareIndexBufferSharedPtr ibuf = index_data->indexBuffer;
 		bool use32bitindexes = (ibuf->getType() == Ogre::HardwareIndexBuffer::IT_32BIT);
 		if (use32bitindexes) pInt = static_cast<unsigned int*>(ibuf->lock(Ogre::HardwareBuffer::HBL_READ_ONLY));
