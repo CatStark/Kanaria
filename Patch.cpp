@@ -23,77 +23,15 @@ Patch::Patch(bool target, int numberOfPatch, Ogre::SceneManager* mSceneMgr)
 	p_width = bbsize.x;
 	p_height = bbsize.y;
 	
-
-//	deviationInX = std::abs((widthCell / 2) - p_centerX); //The patch has not uniform mass, therefore the center of the patch might be not exactly in the center, this value shows how much the error is
-//	deviationInY = std::abs((heightCell / 2) - p_centerY);
-
 	_baseSceneNodeName = "patch" + Ogre::StringConverter::toString(numberOfPatch);					//Create a node with an offset to compensate for the deviation of the "center point" of the patch imported by Blender
 	_baseSceneNode = mSceneMgr->getSceneNode("grid")->createChildSceneNode(_baseSceneNodeName);
-	//_baseSceneNode->translate(deviationInX, deviationInY, 0, Ogre::Node::TS_PARENT);
 
 	node = mSceneMgr->getSceneNode(_baseSceneNodeName)->createChildSceneNode(nodeName);				//Create Node
 	node->attachObject(ent);
-	//OriginalZPos = node->_getWorldAABB().getCenter().z;
-	//OriginalZPos = ent->getWorldBoundingBox().getCenter().z;
 	node->rotate(rotation, Ogre::Node::TransformSpace::TS_LOCAL);
 	node->rotate(rotation2, Ogre::Node::TransformSpace::TS_LOCAL);
-	//OriginalZPos = node->getPosition().z;
 	
-	//OriginalZPos = bb.getSize().z /2;
-
-
-
-
-
-
-
-
-
-	//Test
-/*	switch(numberOfPatch)
-	{
-	case(0):
-		node->translate(15, 15, 0);
-		break;
-	case(1):
-		node->translate(15,25,0);
-		break;
-	case(2):
-		node->translate(15,35,0);
-		break;
-	case(3):
-		node->translate(25,15,0);
-		break;
-	case(4):
-		node->translate(25,35,0);
-		break;
-	case(5):
-		node->translate(35,15,0);
-		break;
-	case(6):
-		node->translate(35,25,0);
-		break;
-	case(7):
-		node->translate(35,25,0);
-		break;
-	case(8):
-		node->translate(5,5,0);
-		break;
-	case(9):
-		node->translate(15,5,0);
-		break;
-	case(10):
-		node->translate(25,5,0);
-		break;
-	case(11):
-		node->translate(35,5,0);
-		break;
-	case(12):
-		node->translate(45,5,0);
-		break;
-	}*/
-	//Test--
-
+	
 }
 
 Patch::Patch(bool target, Ogre::Entity* targetPatch, Ogre::SceneManager* mSceneMgr, Ogre::Root* mRoot)						//Target
